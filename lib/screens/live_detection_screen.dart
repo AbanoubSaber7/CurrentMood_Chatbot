@@ -280,8 +280,9 @@ class _LiveDetectionScreenState extends State<LiveDetectionScreen> {
   }
 
   Future<void> _captureAndAnalyze() async {
-    if (_busy || !mounted || _camera == null || !_camera!.value.isInitialized)
+    if (_busy || !mounted || _camera == null || !_camera!.value.isInitialized) {
       return;
+    }
     if (!_modelReady || _helper == null) return;
     if (_camera!.value.isTakingPicture) return;
 
@@ -666,10 +667,9 @@ class _LiveDetectionScreenState extends State<LiveDetectionScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            '${_liveEmotion ?? 'Unknown'}' +
-                                (_liveConfidence != null
+                            '${_liveEmotion ?? 'Unknown'}${_liveConfidence != null
                                     ? '  •  ${_liveConfidence!.toStringAsFixed(0)}%'
-                                    : ''),
+                                    : ''}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,

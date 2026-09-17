@@ -13,10 +13,10 @@ class BackgroundWidget extends StatelessWidget {
   final String emotion;
 
   const BackgroundWidget({
-    Key? key,
+    super.key,
     required this.child,
     this.emotion = 'happy',
-  }) : super(key: key);
+  });
 
   BackgroundTheme _getTheme() {
     switch (emotion.toLowerCase()) {

@@ -12,12 +12,12 @@ class MoodHistoryService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final stored = prefs.getString('user_id');
-      if (stored != null && stored.isNotEmpty) return _key + '_' + stored;
+      if (stored != null && stored.isNotEmpty) return '${_key}_$stored';
 
       final uid = FirebaseAuth.instance.currentUser?.uid;
-      return _key + '_' + (uid ?? 'anon');
+      return '${_key}_${uid ?? 'anon'}';
     } catch (_) {
-      return _key + '_anon';
+      return '${_key}_anon';
     }
   }
 
@@ -62,10 +62,10 @@ class MoodHistoryService {
   /// current user's key (if signed in) and remove the anonymous key.
   Future<void> transferAnonToCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
-    final anonKey = _key + '_anon';
+    final anonKey = '${_key}_anon';
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
-    final userKey = _key + '_' + uid;
+    final userKey = '${_key}_$uid';
 
     final anonRaw = prefs.getString(anonKey);
     if (anonRaw == null || anonRaw.trim().isEmpty) return;

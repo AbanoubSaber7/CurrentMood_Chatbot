@@ -19,7 +19,7 @@ import 'package:mood_app/services/mood_alert_notification_service.dart';
 
 class DetectionScreen extends StatefulWidget {
   final String userName;
-  const DetectionScreen({Key? key, required this.userName}) : super(key: key);
+  const DetectionScreen({super.key, required this.userName});
 
   @override
   State<DetectionScreen> createState() => _DetectionScreenState();

@@ -88,7 +88,7 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen> {
             : ListView.separated(
           padding: const EdgeInsets.all(20),
           itemCount: _entries.length + 1,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, i) {
             if (i == 0) return _buildChartCard(themeColor);
             return _buildHistoryItem(_entries[i - 1]);

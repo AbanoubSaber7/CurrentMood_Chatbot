@@ -3,7 +3,7 @@ import '../widgets/background_widget.dart'; // ده المسار لملف الخ
 
 class ActivitiesScreen extends StatelessWidget {
   final String emotion;
-  const ActivitiesScreen({Key? key, required this.emotion}) : super(key: key);
+  const ActivitiesScreen({super.key, required this.emotion});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class ActivitiesScreen extends StatelessWidget {
                   leading: const Icon(Icons.check_circle_outline, color: Colors.white),
                   title: Text(activity, style: const TextStyle(color: Colors.white, fontSize: 18)),
                 ),
-              )).toList(),
+              )),
             ],
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:mood_app/screens/playlists_screen.dart';
 import 'package:mood_app/screens/videos_screen.dart';
 import 'package:mood_app/screens/stories_screen.dart';
 import 'package:mood_app/screens/activities_screen.dart';
+import 'package:mood_app/screens/chatbot_screen.dart';
 import 'package:mood_app/models/mood_history_entry.dart';
 import 'package:mood_app/services/mood_history_service.dart';
 
@@ -14,12 +15,12 @@ class RecommendationsScreen extends StatefulWidget {
   final String source;
 
   const RecommendationsScreen({
-    Key? key,
+    super.key,
     required this.userName,
     required this.emotion,
     this.confidencePercent,
     this.source = 'model',
-  }) : super(key: key);
+  });
 
   @override
   State<RecommendationsScreen> createState() => _RecommendationsScreenState();
@@ -285,6 +286,8 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                   const SizedBox(height: 25),
                   _buildConfirmBox(themeColor),
                 ],
+                const SizedBox(height: 25),
+                _buildChatbotBanner(context, themeColor, isDarkThemeColor),
                 const SizedBox(height: 35),
                 Text(
                   'Recommended for you',
@@ -364,7 +367,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
           ),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
-            value: _selectedEmotion,
+            initialValue: _selectedEmotion,
             items: _emotionLabels
                 .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                 .toList(),
@@ -406,6 +409,95 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildChatbotBanner(BuildContext context, Color themeColor, bool isDarkThemeColor) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            themeColor,
+            themeColor.withOpacity(0.75),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: themeColor.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatbotScreen(
+                  userName: widget.userName,
+                  emotion: _confirmed ? _selectedEmotion : 'Neutral',
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: Colors.white24,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.chat_bubble_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Talk to YouMatter AI',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Feeling ${_confirmed ? _selectedEmotion : 'Neutral'}? Let\'s chat about it and process together.',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
