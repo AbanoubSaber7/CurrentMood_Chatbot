@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mood_app/services/gemini_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatbotScreen extends StatefulWidget {
   final String userName;
@@ -44,7 +45,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       userName: widget.userName,
       currentMood: widget.emotion,
     );
-    _checkApiKey();
+    _checkApiKey().then((_) {
+      if (!_hasApiKey && mounted) {
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted && !_hasApiKey) _showApiKeyDialog();
+        });
+      }
+    });
     _addInitialGreeting();
   }
 
@@ -172,22 +179,45 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     }
   }
 
+  Future<void> _openApiKeyPage() async {
+    final uri = Uri.parse('https://aistudio.google.com/apikey');
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open Google AI Studio')),
+      );
+    }
+  }
+
   void _showApiKeyDialog() {
     final TextEditingController keyController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Enter Gemini API Key'),
+        title: const Text('Gemini API Key'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'To chat with the AI, please enter your Google Gemini API Key. You can get a free key from Google AI Studio.',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+              'الشات بوت محتاج Gemini API Key مجاني من Google.\n'
+              '1) اضغط Get Free Key\n'
+              '2) انسخ المفتاح\n'
+              '3) الصقه هنا واضغط Save',
+              style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: _openApiKeyPage,
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: const Text('Get Free Key'),
+              style: TextButton.styleFrom(
+                foregroundColor: _getThemeColor(widget.emotion),
+                padding: EdgeInsets.zero,
+              ),
+            ),
+            const SizedBox(height: 8),
             TextField(
               controller: keyController,
               obscureText: true,
@@ -196,7 +226,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             ),
           ],
@@ -227,7 +258,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 );
               }
             },
-            child: const Text('Save Key', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Save Key', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

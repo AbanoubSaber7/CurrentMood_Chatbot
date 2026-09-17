@@ -4,22 +4,36 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   static const String _apiKeyKey = 'gemini_api_key';
-  
-  // Place your hardcoded Gemini API Key here if desired.
+
+  /// Optional compile-time key:
+  /// flutter run --dart-define=GEMINI_API_KEY=your_key_here
+  static const String _envApiKey = String.fromEnvironment('GEMINI_API_KEY');
+
+  /// Fallback hardcoded key (leave empty in git; set locally if you want).
   static const String defaultApiKey = '';
 
+  /// Current Gemini models (tried in order if one is unavailable).
+  static const List<String> _modelCandidates = [
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+  ];
+
   static Future<String?> getApiKey() async {
+    if (_envApiKey.trim().isNotEmpty) return _envApiKey.trim();
+
     final prefs = await SharedPreferences.getInstance();
     final storedKey = prefs.getString(_apiKeyKey);
     if (storedKey != null && storedKey.trim().isNotEmpty) {
-      return storedKey;
+      return storedKey.trim();
     }
-    return defaultApiKey.trim().isNotEmpty ? defaultApiKey : null;
+    return defaultApiKey.trim().isNotEmpty ? defaultApiKey.trim() : null;
   }
 
   static Future<void> saveApiKey(String key) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_apiKeyKey, key);
+    await prefs.setString(_apiKeyKey, key.trim());
   }
 
   static Future<void> clearApiKey() async {
@@ -50,11 +64,7 @@ class GeminiService {
       throw Exception('API Key is missing. Please set your Gemini API key.');
     }
 
-    // Add user message to history
     addMessage(role: 'user', text: message);
-
-    final url = Uri.parse(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey');
 
     final systemInstruction =
         "You are a supportive, warm, and empathetic AI mental health companion named YouMatter AI. "
@@ -79,29 +89,7 @@ class GeminiService {
     };
 
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      );
-
-      if (response.statusCode != 200) {
-        // Remove user message from history if call failed
-        _chatHistory.removeLast();
-        final errorBody = jsonDecode(response.body);
-        final errorMessage = errorBody['error']?['message'] ?? 'Status code: ${response.statusCode}';
-        throw Exception(errorMessage);
-      }
-
-      final responseData = jsonDecode(response.body);
-      final aiText = responseData['candidates']?[0]?['content']?['parts']?[0]?['text'] as String?;
-      
-      if (aiText == null || aiText.isEmpty) {
-        _chatHistory.removeLast();
-        throw Exception('Received empty response from Gemini.');
-      }
-
-      // Add AI response to history
+      final aiText = await _generateWithFallback(apiKey, body);
       addMessage(role: 'ai', text: aiText);
       return aiText;
     } catch (e) {
@@ -110,5 +98,56 @@ class GeminiService {
       }
       rethrow;
     }
+  }
+
+  Future<String> _generateWithFallback(
+    String apiKey,
+    Map<String, dynamic> body,
+  ) async {
+    String? lastError;
+
+    for (final model in _modelCandidates) {
+      final url = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey',
+      );
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final aiText = responseData['candidates']?[0]?['content']?['parts']?[0]
+            ?['text'] as String?;
+
+        if (aiText == null || aiText.trim().isEmpty) {
+          throw Exception('Received empty response from Gemini.');
+        }
+        return aiText.trim();
+      }
+
+      String errorMessage = 'Status code: ${response.statusCode}';
+      try {
+        final errorBody = jsonDecode(response.body);
+        errorMessage =
+            errorBody['error']?['message']?.toString() ?? errorMessage;
+      } catch (_) {}
+
+      lastError = errorMessage;
+
+      // Try next model if this one is missing/unsupported.
+      final lower = errorMessage.toLowerCase();
+      final tryNext = response.statusCode == 404 ||
+          lower.contains('not found') ||
+          lower.contains('no longer available') ||
+          lower.contains('not supported');
+      if (!tryNext) {
+        throw Exception(errorMessage);
+      }
+    }
+
+    throw Exception(lastError ?? 'Failed to get response from Gemini.');
   }
 }
