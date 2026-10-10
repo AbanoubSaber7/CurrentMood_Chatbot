@@ -26,7 +26,8 @@ class RecommendationsScreen extends StatefulWidget {
   State<RecommendationsScreen> createState() => _RecommendationsScreenState();
 }
 
-class _RecommendationsScreenState extends State<RecommendationsScreen> {
+class _RecommendationsScreenState extends State<RecommendationsScreen>
+    with SingleTickerProviderStateMixin {
   static const double _lowConfidenceThreshold = 40.0;
   static const List<String> _emotionLabels = [
     'Neutral',
@@ -44,9 +45,19 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
   late bool _confirmed;
   bool _saved = false;
 
+  late final AnimationController _chatAnimController;
+  late final Animation<double> _chatScaleAnimation;
+
   @override
   void initState() {
     super.initState();
+    _chatAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _chatScaleAnimation = Tween<double>(begin: 1.0, end: 1.14).animate(
+      CurvedAnimation(parent: _chatAnimController, curve: Curves.easeInOut),
+    );
     _selectedEmotion = widget.emotion;
     final conf = widget.confidencePercent;
     _confirmed =
@@ -59,6 +70,13 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         predictedEmotion: widget.source == 'model' ? widget.emotion : null,
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _chatAnimController.stop();
+    _chatAnimController.dispose();
+    super.dispose();
   }
 
   Color _getThemeColor(String emotion) {
@@ -205,6 +223,30 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
         backgroundColor: themeColor,
         elevation: 0,
         centerTitle: true,
+      ),
+      floatingActionButton: ScaleTransition(
+        scale: _chatScaleAnimation,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatbotScreen(
+                  userName: widget.userName,
+                  emotion: _confirmed ? _selectedEmotion : 'Neutral',
+                ),
+              ),
+            );
+          },
+          backgroundColor: themeColor,
+          elevation: 8,
+          tooltip: 'Talk to MoodMate',
+          child: const Icon(
+            Icons.chat_rounded,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
       ),
       body: BackgroundWidget(
         emotion: effectiveEmotion,
@@ -413,6 +455,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     );
   }
 
+<<<<<<< Updated upstream
   Widget _buildChatbotBanner(BuildContext context, Color themeColor, bool isDarkThemeColor) {
     return Container(
       width: double.infinity,
@@ -501,4 +544,6 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
       ),
     );
   }
+=======
+>>>>>>> Stashed changes
 }
