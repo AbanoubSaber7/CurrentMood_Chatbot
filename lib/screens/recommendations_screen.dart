@@ -47,16 +47,24 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
 
   late final AnimationController _chatAnimController;
   late final Animation<double> _chatScaleAnimation;
+  late final Animation<double> _chatHaloScaleAnimation;
+  late final Animation<double> _chatHaloOpacityAnimation;
 
   @override
   void initState() {
     super.initState();
     _chatAnimController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: const Duration(milliseconds: 1600),
     )..repeat(reverse: true);
-    _chatScaleAnimation = Tween<double>(begin: 1.0, end: 1.14).animate(
+    _chatScaleAnimation = Tween<double>(begin: 0.98, end: 1.04).animate(
       CurvedAnimation(parent: _chatAnimController, curve: Curves.easeInOut),
+    );
+    _chatHaloScaleAnimation = Tween<double>(begin: 1.0, end: 1.45).animate(
+      CurvedAnimation(parent: _chatAnimController, curve: Curves.easeOut),
+    );
+    _chatHaloOpacityAnimation = Tween<double>(begin: 0.4, end: 0).animate(
+      CurvedAnimation(parent: _chatAnimController, curve: Curves.easeOut),
     );
     _selectedEmotion = widget.emotion;
     final conf = widget.confidencePercent;
@@ -197,6 +205,18 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
     );
   }
 
+  void _openChatbot(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatbotScreen(
+          userName: widget.userName,
+          emotion: _confirmed ? _selectedEmotion : 'Neutral',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final conf = widget.confidencePercent;
@@ -226,25 +246,82 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
       ),
       floatingActionButton: ScaleTransition(
         scale: _chatScaleAnimation,
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatbotScreen(
-                  userName: widget.userName,
-                  emotion: _confirmed ? _selectedEmotion : 'Neutral',
+        child: SizedBox(
+          width: 72,
+          height: 72,
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              FadeTransition(
+                opacity: _chatHaloOpacityAnimation,
+                child: ScaleTransition(
+                  scale: _chatHaloScaleAnimation,
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: themeColor.withOpacity(0.45),
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            );
-          },
-          backgroundColor: themeColor,
-          elevation: 8,
-          tooltip: 'Talk to MoodMate',
-          child: const Icon(
-            Icons.chat_rounded,
-            color: Colors.white,
-            size: 28,
+              Material(
+                color: Colors.transparent,
+                shape: const CircleBorder(),
+                elevation: 12,
+                shadowColor: themeColor.withOpacity(0.45),
+                child: Ink(
+                  width: 62,
+                  height: 62,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        themeColor,
+                        Color.lerp(
+                          themeColor,
+                          const Color(0xFF7657E8),
+                          0.7,
+                        )!,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () => _openChatbot(context),
+                    customBorder: const CircleBorder(),
+                    child: Tooltip(
+                      message: 'Talk to MoodMate',
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const Icon(
+                            Icons.chat_bubble_rounded,
+                            color: Colors.white,
+                            size: 27,
+                          ),
+                          Positioned(
+                            top: 12,
+                            right: 15,
+                            child: Icon(
+                              Icons.auto_awesome_rounded,
+                              color: Colors.amber.shade200,
+                              size: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -455,7 +532,6 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
     );
   }
 
-<<<<<<< Updated upstream
   Widget _buildChatbotBanner(BuildContext context, Color themeColor, bool isDarkThemeColor) {
     return Container(
       width: double.infinity,
@@ -481,31 +557,40 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatbotScreen(
-                  userName: widget.userName,
-                  emotion: _confirmed ? _selectedEmotion : 'Neutral',
-                ),
-              ),
-            );
-          },
+          onTap: () => _openChatbot(context),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: Colors.white24,
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [Colors.white24, Colors.white10],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    border: Border.all(color: Colors.white30),
                   ),
-                  child: const Icon(
-                    Icons.chat_bubble_rounded,
-                    color: Colors.white,
-                    size: 28,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(
+                        Icons.chat_bubble_rounded,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                      Positioned(
+                        top: -5,
+                        right: -5,
+                        child: Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Colors.amber.shade200,
+                          size: 15,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -544,6 +629,4 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
       ),
     );
   }
-=======
->>>>>>> Stashed changes
 }
