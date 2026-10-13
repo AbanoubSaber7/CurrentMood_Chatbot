@@ -38,3 +38,4 @@ flutter:
 
   assets:
     - assets/model/ferplus_model_pd_best.tflite
+    - assets/chat_mood_logo.png

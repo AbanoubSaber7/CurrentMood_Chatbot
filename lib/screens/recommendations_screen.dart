@@ -49,6 +49,9 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
   late final Animation<double> _chatScaleAnimation;
   late final Animation<double> _chatHaloScaleAnimation;
   late final Animation<double> _chatHaloOpacityAnimation;
+  final ValueNotifier<Offset?> _chatButtonPosition = ValueNotifier(null);
+  final GlobalKey _chatAreaKey = GlobalKey();
+  Offset _chatDragOffset = Offset.zero;
 
   @override
   void initState() {
@@ -84,6 +87,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
   void dispose() {
     _chatAnimController.stop();
     _chatAnimController.dispose();
+    _chatButtonPosition.dispose();
     super.dispose();
   }
 
@@ -244,226 +248,322 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
         elevation: 0,
         centerTitle: true,
       ),
-      floatingActionButton: ScaleTransition(
-        scale: _chatScaleAnimation,
-        child: SizedBox(
-          width: 72,
-          height: 72,
-          child: Stack(
-            alignment: Alignment.center,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          const buttonSize = 72.0;
+          final maxLeft = constraints.maxWidth > buttonSize
+              ? constraints.maxWidth - buttonSize
+              : 0.0;
+          final maxTop = constraints.maxHeight > buttonSize
+              ? constraints.maxHeight - buttonSize
+              : 0.0;
+          return Stack(
+            key: _chatAreaKey,
             clipBehavior: Clip.none,
             children: [
-              FadeTransition(
-                opacity: _chatHaloOpacityAnimation,
-                child: ScaleTransition(
-                  scale: _chatHaloScaleAnimation,
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: themeColor.withOpacity(0.45),
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Material(
-                color: Colors.transparent,
-                shape: const CircleBorder(),
-                elevation: 12,
-                shadowColor: themeColor.withOpacity(0.45),
-                child: Ink(
-                  width: 62,
-                  height: 62,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        themeColor,
-                        Color.lerp(
-                          themeColor,
-                          const Color(0xFF7657E8),
-                          0.7,
-                        )!,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: InkWell(
-                    onTap: () => _openChatbot(context),
-                    customBorder: const CircleBorder(),
-                    child: Tooltip(
-                      message: 'Talk to MoodMate',
-                      child: Stack(
-                        alignment: Alignment.center,
+              Positioned.fill(
+                child: BackgroundWidget(
+                  emotion: effectiveEmotion,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.chat_bubble_rounded,
-                            color: Colors.white,
-                            size: 27,
-                          ),
-                          Positioned(
-                            top: 12,
-                            right: 15,
-                            child: Icon(
-                              Icons.auto_awesome_rounded,
-                              color: Colors.amber.shade200,
-                              size: 14,
+                          const SizedBox(height: 30),
+                          Text(
+                            'Hello, ${widget.userName}!',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: foregroundColor,
                             ),
                           ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isDarkThemeColor
+                                  ? Colors.black.withOpacity(0.45)
+                                  : themeColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                color: themeColor.withOpacity(0.2),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.auto_awesome,
+                                  color: isDarkThemeColor
+                                      ? Colors.white
+                                      : themeColor,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Feeling ${effectiveEmotion.toUpperCase()}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDarkThemeColor
+                                        ? Colors.white
+                                        : themeColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: isDarkThemeColor
+                                  ? Colors.black.withOpacity(0.45)
+                                  : themeColor.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border(
+                                left: BorderSide(color: themeColor, width: 5),
+                              ),
+                            ),
+                            child: Text(
+                              _getQuote(effectiveEmotion),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: isDarkThemeColor
+                                    ? Colors.white
+                                    : Colors.black87.withOpacity(0.7),
+                                fontStyle: FontStyle.italic,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                          if (showConfirm) ...[
+                            const SizedBox(height: 25),
+                            _buildConfirmBox(themeColor),
+                          ],
+                          const SizedBox(height: 25),
+                          _buildChatbotBanner(
+                            context,
+                            themeColor,
+                            isDarkThemeColor,
+                          ),
+                          const SizedBox(height: 35),
+                          Text(
+                            'Recommended for you',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: foregroundColor,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          GridView.count(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 20,
+                            mainAxisSpacing: 20,
+                            childAspectRatio: 0.9,
+                            children: [
+                              _buildCard(
+                                context: context,
+                                title: 'Music',
+                                subtitle: 'Best beats for your mood',
+                                icon: Icons.music_note_rounded,
+                                themeColor: themeColor,
+                                targetScreen: PlaylistsScreen(
+                                  emotion: effectiveEmotion,
+                                ),
+                              ),
+                              _buildCard(
+                                context: context,
+                                title: 'Videos',
+                                subtitle: 'Visuals to inspire you',
+                                icon: Icons.play_circle_rounded,
+                                themeColor: themeColor,
+                                targetScreen: VideosScreen(
+                                  emotion: effectiveEmotion,
+                                ),
+                              ),
+                              _buildCard(
+                                context: context,
+                                title: 'Stories',
+                                subtitle: 'Escape into words',
+                                icon: Icons.menu_book_rounded,
+                                themeColor: themeColor,
+                                targetScreen: StoriesScreen(
+                                  emotion: effectiveEmotion,
+                                ),
+                              ),
+                              _buildCard(
+                                context: context,
+                                title: 'Activities',
+                                subtitle: 'Actionable wellness',
+                                icon: Icons.fitness_center_rounded,
+                                themeColor: themeColor,
+                                targetScreen: ActivitiesScreen(
+                                  emotion: effectiveEmotion,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 40),
                         ],
                       ),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-      body: BackgroundWidget(
-        emotion: effectiveEmotion,
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 30),
-                Text(
-                  'Hello, ${widget.userName}!',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: foregroundColor,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDarkThemeColor
-                        ? Colors.black.withOpacity(0.45)
-                        : themeColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: themeColor.withOpacity(0.2)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.auto_awesome,
-                        color: isDarkThemeColor ? Colors.white : themeColor,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Feeling ${effectiveEmotion.toUpperCase()}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: isDarkThemeColor ? Colors.white : themeColor,
+              ValueListenableBuilder<Offset?>(
+                valueListenable: _chatButtonPosition,
+                builder: (context, position, child) {
+                  final left = (position?.dx ?? (maxLeft - 12))
+                      .clamp(0.0, maxLeft)
+                      .toDouble();
+                  final top = (position?.dy ?? (maxTop - 12))
+                      .clamp(0.0, maxTop)
+                      .toDouble();
+
+                  return Positioned(
+                    left: left,
+                    top: top,
+                    child: GestureDetector(
+                      onPanStart: (details) {
+                        _chatDragOffset = details.localPosition;
+                        _chatAnimController.stop();
+                      },
+                      onPanUpdate: (details) {
+                        final renderObject = _chatAreaKey.currentContext
+                            ?.findRenderObject();
+                        if (renderObject is! RenderBox) return;
+
+                        final pointerPosition = renderObject.globalToLocal(
+                          details.globalPosition,
+                        );
+                        _chatButtonPosition.value = Offset(
+                          (pointerPosition.dx - _chatDragOffset.dx)
+                              .clamp(0.0, maxLeft)
+                              .toDouble(),
+                          (pointerPosition.dy - _chatDragOffset.dy)
+                              .clamp(0.0, maxTop)
+                              .toDouble(),
+                        );
+                      },
+                      onPanEnd: (_) =>
+                          _chatAnimController.repeat(reverse: true),
+                      onPanCancel: () =>
+                          _chatAnimController.repeat(reverse: true),
+                      child: ScaleTransition(
+                        scale: _chatScaleAnimation,
+                        child: SizedBox(
+                          width: buttonSize,
+                          height: buttonSize,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            clipBehavior: Clip.none,
+                            children: [
+                              FadeTransition(
+                                opacity: _chatHaloOpacityAnimation,
+                                child: ScaleTransition(
+                                  scale: _chatHaloScaleAnimation,
+                                  child: Container(
+                                    width: 64,
+                                    height: 64,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: themeColor.withOpacity(0.45),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Material(
+                                color: Colors.transparent,
+                                shape: const CircleBorder(),
+                                elevation: 12,
+                                shadowColor: themeColor.withOpacity(0.45),
+                                child: Ink(
+                                  width: 62,
+                                  height: 62,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      color: themeColor.withOpacity(0.18),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () => _openChatbot(context),
+                                    customBorder: const CircleBorder(),
+                                    child: Tooltip(
+                                      message: 'Drag to move • Open AI chat',
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          Image.asset(
+                                            'assets/chat_mood_logo.png',
+                                            width: 56,
+                                            height: 57,
+                                            fit: BoxFit.contain,
+                                          ),
+                                          Positioned(
+                                            top: 1,
+                                            right: 0,
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 4,
+                                                    vertical: 2,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF7657E8),
+                                                borderRadius:
+                                                    BorderRadius.circular(7),
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                              child: const Text(
+                                                'AI',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 8,
+                                                  fontWeight: FontWeight.w800,
+                                                  height: 1,
+                                                  letterSpacing: 0.2,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: isDarkThemeColor
-                        ? Colors.black.withOpacity(0.45)
-                        : themeColor.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border(
-                      left: BorderSide(color: themeColor, width: 5),
                     ),
-                  ),
-                  child: Text(
-                    _getQuote(effectiveEmotion),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: isDarkThemeColor
-                          ? Colors.white
-                          : Colors.black87.withOpacity(0.7),
-                      fontStyle: FontStyle.italic,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-                if (showConfirm) ...[
-                  const SizedBox(height: 25),
-                  _buildConfirmBox(themeColor),
-                ],
-                const SizedBox(height: 25),
-                _buildChatbotBanner(context, themeColor, isDarkThemeColor),
-                const SizedBox(height: 35),
-                Text(
-                  'Recommended for you',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: foregroundColor,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  childAspectRatio: 0.9,
-                  children: [
-                    _buildCard(
-                      context: context,
-                      title: 'Music',
-                      subtitle: 'Best beats for your mood',
-                      icon: Icons.music_note_rounded,
-                      themeColor: themeColor,
-                      targetScreen: PlaylistsScreen(emotion: effectiveEmotion),
-                    ),
-                    _buildCard(
-                      context: context,
-                      title: 'Videos',
-                      subtitle: 'Visuals to inspire you',
-                      icon: Icons.play_circle_rounded,
-                      themeColor: themeColor,
-                      targetScreen: VideosScreen(emotion: effectiveEmotion),
-                    ),
-                    _buildCard(
-                      context: context,
-                      title: 'Stories',
-                      subtitle: 'Escape into words',
-                      icon: Icons.menu_book_rounded,
-                      themeColor: themeColor,
-                      targetScreen: StoriesScreen(emotion: effectiveEmotion),
-                    ),
-                    _buildCard(
-                      context: context,
-                      title: 'Activities',
-                      subtitle: 'Actionable wellness',
-                      icon: Icons.fitness_center_rounded,
-                      themeColor: themeColor,
-                      targetScreen: ActivitiesScreen(emotion: effectiveEmotion),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
-        ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -532,15 +632,16 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
     );
   }
 
-  Widget _buildChatbotBanner(BuildContext context, Color themeColor, bool isDarkThemeColor) {
+  Widget _buildChatbotBanner(
+    BuildContext context,
+    Color themeColor,
+    bool isDarkThemeColor,
+  ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            themeColor,
-            themeColor.withOpacity(0.75),
-          ],
+          colors: [themeColor, themeColor.withOpacity(0.75)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
