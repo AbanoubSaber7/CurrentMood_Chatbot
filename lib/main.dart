@@ -20,11 +20,11 @@ void main() async {
 
   await MoodAlertNotificationService.instance.init();
 
-  runApp(const MoodApp());
+  runApp(const CurrentMoodApp());
 }
 
-class MoodApp extends StatelessWidget {
-  const MoodApp({super.key});
+class CurrentMoodApp extends StatelessWidget {
+  const CurrentMoodApp({super.key});
 
   @override
   Widget build(BuildContext context) {

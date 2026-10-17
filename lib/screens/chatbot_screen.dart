@@ -194,6 +194,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Gemini API Key'),
         content: Column(
@@ -204,7 +205,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               'الشات بوت محتاج Gemini API Key مجاني من Google.\n'
               '1) اضغط Get Free Key\n'
               '2) انسخ المفتاح\n'
-              '3) الصقه هنا واضغط Save',
+              '3) الصقه هنا واضغط Save\n\n'
+              'المفتاح يُحفظ في التخزين الآمن على جهازك. لكن لأن التطبيق يتصل '
+              'مباشرةً بـ Gemini، يمكن استخراج المفتاح من نسخة التطبيق؛ لا تستخدم '
+              'مفتاحًا حساسًا أو إنتاجيًا. للاستخدام الإنتاجي، مرّر الطلبات عبر خادم آمن.',
               style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.4),
             ),
             const SizedBox(height: 12),

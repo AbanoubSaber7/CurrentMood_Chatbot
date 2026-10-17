@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mood_app/models/mood_history_entry.dart';
 import 'package:mood_app/services/mood_history_service.dart';
 import 'package:mood_app/widgets/background_widget.dart';
@@ -16,6 +19,7 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen> {
   final _service = MoodHistoryService();
   List<MoodHistoryEntry> _entries = const [];
   bool _loading = true;
+  bool _clearing = false;
 
   static const List<String> _emotionOrder = [
     'Neutral', 'Happy', 'Surprise', 'Sad', 'Angry', 'Disgust', 'Fear',
@@ -50,8 +54,42 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen> {
   }
 
   Future<void> _clear() async {
-    await _service.clear();
-    await _load();
+    if (_clearing) return;
+    setState(() => _clearing = true);
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final records = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('mood_history')
+            .get();
+
+        for (final record in records.docs) {
+          final imageUrl = record.data()['image_url'];
+          if (imageUrl is String && imageUrl.isNotEmpty) {
+            await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+          }
+          await record.reference.delete();
+        }
+      }
+
+      await _service.clear();
+      await _load();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mood data was deleted.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not delete all mood data: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _clearing = false);
+    }
   }
 
   String _formatTs(DateTime dt) {
@@ -74,7 +112,12 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen> {
         actions: [
           IconButton(
             tooltip: 'Clear History',
-            onPressed: _entries.isEmpty ? null : () => _showClearDialog(themeColor),
+            onPressed:
+                (_entries.isEmpty &&
+                    FirebaseAuth.instance.currentUser == null) ||
+                    _clearing
+                ? null
+                : () => _showClearDialog(themeColor),
             icon: const Icon(Icons.delete_sweep_outlined),
           ),
         ],
@@ -199,10 +242,22 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Clear History?'),
-        content: const Text('This will delete all your mood records permanently.'),
+        content: const Text(
+          'This permanently deletes mood history on this device and, when signed '
+          'in, your Firebase mood records and their uploaded photos.',
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () { _clear(); Navigator.pop(context); }, child: Text('Clear All', style: TextStyle(color: themeColor, fontWeight: FontWeight.bold))),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _clear();
+            },
+            child: Text(
+              'Clear All',
+              style: TextStyle(color: themeColor, fontWeight: FontWeight.bold),
+            ),
+          ),
         ],
       ),
     );

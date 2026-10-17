@@ -34,57 +34,58 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFBECEB), Color(0xFFEDB1AA)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFBECEB), Color(0xFFEDB1AA)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          Center(
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(),
+                Flexible(
+                  flex: 6,
+                  child: Image.asset(
+                    'assets/app_logo.png',
+                    fit: BoxFit.contain,
+                    semanticLabel: 'Current Mood - Track Your Feelings',
+                  ),
+                ),
+                const SizedBox(height: 20),
                 const Text(
-                  'CURRENT\nMOOD',
+                  'A gentle space to check in with yourself.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFC04F4C),
-                    fontFamily: 'Impact',
-                    letterSpacing: 2.0,
-                    height: 1.2,
+                    color: Color(0xFF563B42),
+                    fontSize: 16,
+                    height: 1.4,
                   ),
                 ),
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 60.0),
+                SizedBox(
+                  width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () => _handleStartNavigation(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFC04F4C),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 50.0,
-                        vertical: 15.0,
-                      ),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 17),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                        borderRadius: BorderRadius.circular(30),
                       ),
+                      elevation: 3,
                     ),
                     child: const Text(
-                      'GET START',
+                      'GET STARTED',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        letterSpacing: 0.8,
                       ),
                     ),
                   ),
@@ -92,7 +93,7 @@ class SplashScreen extends StatelessWidget {
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GeminiService {
   static const String _apiKeyKey = 'gemini_api_key';
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   /// Optional compile-time key:
   /// flutter run --dart-define=GEMINI_API_KEY=your_key_here
@@ -23,20 +25,30 @@ class GeminiService {
   static Future<String?> getApiKey() async {
     if (_envApiKey.trim().isNotEmpty) return _envApiKey.trim();
 
+    final secureKey = await _secureStorage.read(key: _apiKeyKey);
+    if (secureKey != null && secureKey.trim().isNotEmpty) {
+      return secureKey.trim();
+    }
+
     final prefs = await SharedPreferences.getInstance();
     final storedKey = prefs.getString(_apiKeyKey);
     if (storedKey != null && storedKey.trim().isNotEmpty) {
-      return storedKey.trim();
+      final migratedKey = storedKey.trim();
+      await _secureStorage.write(key: _apiKeyKey, value: migratedKey);
+      await prefs.remove(_apiKeyKey);
+      return migratedKey;
     }
     return defaultApiKey.trim().isNotEmpty ? defaultApiKey.trim() : null;
   }
 
   static Future<void> saveApiKey(String key) async {
+    await _secureStorage.write(key: _apiKeyKey, value: key.trim());
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_apiKeyKey, key.trim());
+    await prefs.remove(_apiKeyKey);
   }
 
   static Future<void> clearApiKey() async {
+    await _secureStorage.delete(key: _apiKeyKey);
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_apiKeyKey);
   }

@@ -427,7 +427,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
                   final left = (position?.dx ?? (maxLeft - 12))
                       .clamp(0.0, maxLeft)
                       .toDouble();
-                  final top = (position?.dy ?? (maxTop - 12))
+                  final top = (position?.dy ?? 12.0)
                       .clamp(0.0, maxTop)
                       .toDouble();
 

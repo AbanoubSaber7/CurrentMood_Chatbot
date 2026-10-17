@@ -298,6 +298,60 @@ class _DetectionScreenState extends State<DetectionScreen> {
     Navigator.pushReplacementNamed(context, '/login');
   }
 
+  void _showPrivacyInfo() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Privacy & data | الخصوصية والبيانات',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '• تحليل الوجه والمشاعر يتم على الجهاز باستخدام ML Kit و TFLite.\n'
+                '• عند تسجيل الدخول، تُرفع الصورة الأصلية ونتيجة التحليل إلى Firebase '
+                'لحفظ سجل المزاج. وضع الضيف لا يرفع الصورة؛ ويحفظ السجل محليًا '
+                'على الجهاز (حتى 20 سجلًا).\n'
+                '• رسائلك ومزاجك الحالي يُرسلان إلى Google Gemini عند استخدام '
+                'المحادثة. التطبيق لا يحفظ سجل المحادثة محليًا، وتخضع معالجة '
+                'Google لسياساتها.\n'
+                '• يمكنك حذف سجل المزاج المحلي وسجلات Firebase والصور المرتبطة '
+                'من شاشة سجل المزاج.',
+                style: TextStyle(fontSize: 14, height: 1.55),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(sheetContext);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            MoodHistoryScreen(userName: widget.userName),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.manage_history),
+                  label: const Text('View or delete mood data'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _openLiveMode() {
     Navigator.push(
       context,
@@ -356,6 +410,11 @@ class _DetectionScreenState extends State<DetectionScreen> {
                     );
                   },
                 ),
+                IconButton(
+                  icon: const Icon(Icons.privacy_tip_outlined),
+                  tooltip: 'Privacy and data',
+                  onPressed: _showPrivacyInfo,
+                ),
                 Container(height: 28, width: 1, color: Colors.grey.shade300),
                 IconButton(
                   icon: const Icon(Icons.videocam),
@@ -364,7 +423,7 @@ class _DetectionScreenState extends State<DetectionScreen> {
                 ),
                 Container(height: 28, width: 1, color: Colors.grey.shade300),
                 IconButton(
-                  icon: const Icon(Icons.logout),
+                  icon: const Icon(Icons.logout, color: Colors.red),
                   tooltip: 'Logout',
                   onPressed: handleLogout,
                 ),
