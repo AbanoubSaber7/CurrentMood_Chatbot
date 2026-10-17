@@ -26,6 +26,7 @@ class VideosScreen extends StatelessWidget {
     }
   }
 
+  // فتح رابط الفيديو في التطبيق الخارجي.
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -163,6 +164,7 @@ class VideosScreen extends StatelessWidget {
     );
   }
 
+  // بناء اقتراحات الفيديو المناسبة للشعور الحالي.
   List<Widget> _items(Color accent) {
     IconData ic = Icons.video_library_rounded;
     switch (emotion.toLowerCase()) {

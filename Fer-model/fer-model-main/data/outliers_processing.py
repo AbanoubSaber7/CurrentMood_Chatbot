@@ -3,6 +3,7 @@ import pandas as pd
 
 def get_dataset_without_custom_outliers(dataset_df, df_column_names):
     '''Returns a copy of a dataframe with removed outliers.'''
+    # إزالة التصويتات الشاذة والسجلات المصنفة كمجهولة أو بلا وجه.
     # Make a copy not to change the original df
     dataset_df = dataset_df.copy()
 
@@ -51,6 +52,7 @@ def get_dataset_without_original_outliers(dataset_df,
 
     Returns: a dataframe without outlier records and votes.
     '''
+    # تطبيق معالجة FER-Plus الأصلية على تصويتات كل صورة.
     preprocessed_list = []
 
     for _, row in dataset_df.iterrows():
@@ -79,6 +81,7 @@ def _process_votes(original_votes, cross_entropy):
 
     Returns: processed votes list for a single record.
     '''
+    # تحويل الأصوات إلى تسميات مناسبة لنوع دالة الخسارة.
     size = len(original_votes)
     votes_unknown = [0.0] * size
     votes_unknown[-2] = 1.0

@@ -26,6 +26,7 @@ class StoriesScreen extends StatelessWidget {
     }
   }
 
+  // فتح رابط القصة في المتصفح أو التطبيق الخارجي.
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -164,6 +165,7 @@ class StoriesScreen extends StatelessWidget {
     );
   }
 
+  // اختيار القصص التي تتوافق مع الشعور المحدد.
   List<Map<String, String>> _getStoriesData(String e) {
     switch (e.toLowerCase()) {
       case 'sad':

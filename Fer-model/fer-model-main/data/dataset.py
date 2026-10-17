@@ -28,6 +28,7 @@ def get_dataset_dict(dataset_dir = '../dataset',
 
     Returns: a dictionary of three dataset dataframes ('train', 'valid', 'test').
     '''
+    # تحميل مجموعة البيانات الموحدة أو إنشاؤها عند غيابها.
     # Check if the output csv dataset exists
     dataset_path = os.path.join(dataset_dir, UNIFIED_DATASET_FILE_NAME)
     if os.path.isfile(dataset_path):
@@ -65,6 +66,7 @@ def _generate_dataset_csv(dataset_dir = '../dataset',
 
     Returns: a dataframe contatining output dataset.
     '''
+    # دمج بيانات FER مع تسميات FER-Plus في ملف موحد.
     # File paths
     fer_path = os.path.join(dataset_dir, fer_file_name)
     ferplus_path = os.path.join(dataset_dir, fer_plus_file_name)

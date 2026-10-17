@@ -55,6 +55,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     _addInitialGreeting();
   }
 
+  // بدء المحادثة بتحية مناسبة للشعور الحالي.
   void _addInitialGreeting() {
     String greeting;
     switch (widget.emotion.toLowerCase()) {
@@ -133,6 +134,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     });
   }
 
+  // إرسال رسالة المستخدم وعرض رد المساعد أو الخطأ.
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;

@@ -13,6 +13,7 @@ def get_smart_model(input,
                     n_classes = 8,
                     logits = False):
 
+    # بناء شبكة خفيفة لتصنيف تعبيرات الوجه.
     regularization = l2(regularization_rate)
 
     x = layers.SeparableConv2D(48,
@@ -93,6 +94,7 @@ def get_base_model(leaky_relu_slope,
                    n_classes = 8,
                    logits = False):
 
+    # إنشاء النموذج الأساسي المتوازن للتدريب.
     regularization = l2(regularization_rate)
 
     model = keras.Sequential([
@@ -168,6 +170,7 @@ def get_performance_model(leaky_relu_slope,
                           n_classes = 8,
                           logits = False):
 
+    # إنشاء نموذج أعمق لتحسين أداء تصنيف المشاعر.
     regularization = l2(regularization_rate)
 
     model = keras.Sequential([

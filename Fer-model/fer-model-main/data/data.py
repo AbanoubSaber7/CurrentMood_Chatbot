@@ -53,6 +53,7 @@ def get_data_pipeline(dataset_df,
              for sample_weights_threshold is given, it will return
              (x, y, sample_weights)
     '''
+    # تجهيز خط بيانات التدريب مع التطبيع والتحسينات المطلوبة.
     # Get image generator that applies proper augmentation and color normalization
     image_gen = _get_image_generator(params.augmentation, shuffle)
 
@@ -158,6 +159,7 @@ def _get_images_labels(dataset_df,
         images(ndarray)
         labels(ndarray)
     '''
+    # تحويل الصور والتسميات إلى مصفوفات مناسبة للنموذج.
     # For FER-Plus start with removing outliers
     if dataset == Dataset.FERPLUS and original_preprocessing:
         dataset_df = op.get_dataset_without_original_outliers(dataset_df,

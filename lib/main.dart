@@ -7,6 +7,7 @@ import 'screens/login_screen.dart';
 import 'services/mood_alert_notification_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// تهيئة Firebase والإشعارات قبل تشغيل التطبيق.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -43,6 +44,7 @@ class CurrentMoodApp extends StatelessWidget {
   }
 }
 
+// تسجيل الدخول وإرجاع رمز خطأ Firebase عند الفشل.
 Future<String?> signIn(String email, String password) async {
   try {
     await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -59,6 +61,7 @@ Future<String?> signIn(String email, String password) async {
   }
 }
 
+// إنشاء حساب جديد وإرجاع رمز الخطأ لمعالجته في الواجهة.
 Future<String?> createUser(String email, String password) async {
   try {
     await FirebaseAuth.instance.createUserWithEmailAndPassword(

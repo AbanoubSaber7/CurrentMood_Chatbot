@@ -21,6 +21,7 @@ class MoodHistoryService {
     }
   }
 
+  // تحميل سجلات المستخدم الحالي من التخزين المحلي.
   Future<List<MoodHistoryEntry>> load() async {
     final prefs = await SharedPreferences.getInstance();
     final key = await _keyForUser();
@@ -45,6 +46,7 @@ class MoodHistoryService {
     await prefs.setString(key, encoded);
   }
 
+  // إضافة أحدث سجل مع إبقاء عدد السجلات ضمن الحد المحدد.
   Future<void> addEntry(MoodHistoryEntry entry, {int maxEntries = 20}) async {
     final entries = await load();
     final updated = [entry, ...entries];
@@ -60,6 +62,7 @@ class MoodHistoryService {
 
   /// If there are entries stored under the anonymous key, move them to the
   /// current user's key (if signed in) and remove the anonymous key.
+  // نقل سجل الزائر إلى حساب المستخدم بعد تسجيل الدخول.
   Future<void> transferAnonToCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
     final anonKey = '${_key}_anon';

@@ -13,6 +13,7 @@ class MoodHistoryEntry {
     this.predictedEmotion,
   });
 
+  // تحويل سجل المزاج إلى صيغة قابلة للتخزين.
   Map<String, dynamic> toJson() => {
         'emotion': emotion,
         'confidencePercent': confidencePercent,
@@ -21,6 +22,7 @@ class MoodHistoryEntry {
         'predictedEmotion': predictedEmotion,
       };
 
+  // استعادة سجل مزاج مع قيم افتراضية للبيانات الناقصة.
   static MoodHistoryEntry fromJson(Map<String, dynamic> json) {
     final ts = json['timestamp'];
     return MoodHistoryEntry(
@@ -32,4 +34,3 @@ class MoodHistoryEntry {
     );
   }
 }
-

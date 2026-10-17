@@ -18,6 +18,7 @@ class BackgroundWidget extends StatelessWidget {
     this.emotion = 'happy',
   });
 
+  // تحديد ألوان الخلفية والنص بما يناسب الشعور.
   BackgroundTheme _getTheme() {
     switch (emotion.toLowerCase()) {
       case 'sad':

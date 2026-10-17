@@ -21,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String? emailError;
   String? passwordError;
 
+  // التحقق من بيانات الدخول ثم تحميل ملف المستخدم وسجله.
   void handleLogin() async {
     String email = emailController.text.trim();
     String password = passwordController.text;
@@ -131,6 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // إرسال رابط إعادة تعيين كلمة المرور إلى البريد المدخل.
   Future<void> _sendPasswordReset(BuildContext context) async {
     final email = emailController.text.trim();
     if (email.isEmpty) {

@@ -6,6 +6,7 @@ import 'detection_screen.dart';
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
+  // توجيه المستخدم إلى الشاشة المناسبة حسب حالة تسجيل الدخول.
   Future<void> _handleStartNavigation(BuildContext context) async {
     // Check login state when the user presses the start button
     SharedPreferences prefs = await SharedPreferences.getInstance();

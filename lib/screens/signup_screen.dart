@@ -39,6 +39,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+  // التحقق من بيانات التسجيل وإنشاء الحساب وملفه في Firestore.
   Future<void> handleSignUp() async {
     String userName = nameController.text.trim();
     String email = emailController.text.trim();

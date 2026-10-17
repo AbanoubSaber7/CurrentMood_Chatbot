@@ -31,6 +31,7 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen> {
     _load();
   }
 
+  // تحميل سجل المزاج وتحديث حالة الشاشة.
   Future<void> _load() async {
     final entries = await _service.load();
     if (!mounted) return;
@@ -53,6 +54,7 @@ class _MoodHistoryScreenState extends State<MoodHistoryScreen> {
     }
   }
 
+  // حذف سجلات المزاج المحلية والسحابية والصور المرتبطة بها.
   Future<void> _clear() async {
     if (_clearing) return;
     setState(() => _clearing = true);

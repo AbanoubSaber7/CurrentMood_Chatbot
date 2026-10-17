@@ -54,6 +54,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
   Offset _chatDragOffset = Offset.zero;
 
   @override
+  // تهيئة الحركة وتحديد ما إذا كان الشعور يحتاج إلى تأكيد.
   void initState() {
     super.initState();
     _chatAnimController = AnimationController(
@@ -113,6 +114,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
     }
   }
 
+  // حفظ الشعور النهائي مرة واحدة لتجنب تكرار السجل.
   Future<void> _saveHistoryIfNeeded({
     required String finalEmotion,
     String? predictedEmotion,
@@ -222,6 +224,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
   }
 
   @override
+  // اختيار الشعور والألوان التي ستظهر في الشاشة.
   Widget build(BuildContext context) {
     final conf = widget.confidencePercent;
     final showConfirm =
@@ -568,6 +571,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen>
     );
   }
 
+  // إتاحة تعديل الشعور عندما تكون ثقة النموذج منخفضة.
   Widget _buildConfirmBox(Color themeColor) {
     return Container(
       padding: const EdgeInsets.all(20),

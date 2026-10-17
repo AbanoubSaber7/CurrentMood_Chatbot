@@ -7,6 +7,7 @@ class ActivitiesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // اختيار الأنشطة المناسبة للشعور الحالي.
     // Activities based on mood
     Map<String, List<String>> activities = {
       'happy': ['Share your joy with a friend', 'Capture your happy moment with a photo', 'Go for a walk'],

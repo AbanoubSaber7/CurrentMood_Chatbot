@@ -26,6 +26,7 @@ class PlaylistsScreen extends StatelessWidget {
     }
   }
 
+  // فتح رابط الموسيقى في التطبيق الخارجي المناسب.
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -149,6 +150,7 @@ class PlaylistsScreen extends StatelessWidget {
     );
   }
 
+  // إنشاء قوائم موسيقى مختلفة وفقًا للشعور الحالي.
   List<Widget> _content(BuildContext context, Color accent) {
     switch (emotion.toLowerCase()) {
       case 'sad':

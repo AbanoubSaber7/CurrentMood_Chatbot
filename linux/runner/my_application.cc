@@ -22,6 +22,7 @@ static void first_frame_cb(MyApplication* self, FlView *view)
 
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
+  // إنشاء نافذة Linux وربطها بعرض Flutter.
   MyApplication* self = MY_APPLICATION(application);
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));

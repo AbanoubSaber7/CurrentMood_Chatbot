@@ -97,6 +97,7 @@ class _DetectionScreenState extends State<DetectionScreen> {
     _emotionHelper!.refreshIoShapes();
   }
 
+  // تحميل نموذج المشاعر وربطه بمساعد معالجة الصور.
   Future<void> loadModel() async {
     const assetPath = 'assets/model/ferplus_model_pd_best.tflite';
     try {
@@ -169,6 +170,7 @@ class _DetectionScreenState extends State<DetectionScreen> {
     );
   }
 
+  // تحليل الصورة المختارة ثم حفظ النتيجة وفتح التوصيات.
   Future<void> _predictFromModel() async {
     if (_emotionHelper == null || _pickedFile == null) return;
     setState(() => isLoading = true);
@@ -247,6 +249,7 @@ class _DetectionScreenState extends State<DetectionScreen> {
     }
   }
 
+  // متابعة الشعور اليدوي مباشرة أو بدء تحليل الصورة.
   Future<void> _handleNavigation() async {
     if (manualSelectedEmotion != null && _pickedFile == null) {
       _navigateToRecommendations(manualSelectedEmotion!, source: 'manual');
@@ -257,6 +260,7 @@ class _DetectionScreenState extends State<DetectionScreen> {
     }
   }
 
+  // تمرير الشعور ومصدره ودرجة الثقة إلى شاشة التوصيات.
   void _navigateToRecommendations(
     String finalEmotion, {
     double? confidencePercent,

@@ -110,6 +110,7 @@ class _LiveDetectionScreenState extends State<LiveDetectionScreen> {
     } catch (_) {}
   }
 
+  // تحميل النموذج وتجهيزه لتحليل لقطات الكاميرا.
   Future<void> _loadModel() async {
     try {
       final interpreter = await Interpreter.fromAsset(
@@ -131,6 +132,7 @@ class _LiveDetectionScreenState extends State<LiveDetectionScreen> {
     }
   }
 
+  // تشغيل الكاميرا الأمامية وبدء التقاط الإطارات للتحليل.
   Future<void> _initCamera() async {
     if (kIsWeb) {
       setState(() => _cameraError = 'Live camera is not supported on the web.');
@@ -279,6 +281,7 @@ class _LiveDetectionScreenState extends State<LiveDetectionScreen> {
     } catch (_) {}
   }
 
+  // تحليل لقطة الكاميرا وتحديث التوقع أو التقاطه تلقائيًا.
   Future<void> _captureAndAnalyze() async {
     if (_busy || !mounted || _camera == null || !_camera!.value.isInitialized) {
       return;

@@ -16,6 +16,7 @@ class MoodAlertNotificationService {
   static const _confidenceThreshold = 40.0;
   static const _negativeEmotions = {'sad', 'angry', 'fear'};
 
+  // تهيئة الإشعارات وطلب الأذونات اللازمة من النظام.
   Future<void> init() async {
     if (_initialized) return;
 
@@ -51,6 +52,7 @@ class MoodAlertNotificationService {
     _initialized = true;
   }
 
+  // إرسال تنبيه عند رصد شعور سلبي بثقة كافية دون تكرار سريع.
   Future<void> maybeAlertNegativeEmotion(
     String emotion,
     double confidencePercent,

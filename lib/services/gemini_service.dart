@@ -70,6 +70,7 @@ class GeminiService {
     });
   }
 
+  // إرسال رسالة مع سياق المستخدم والمزاج الحالي إلى Gemini.
   Future<String> sendMessage(String message) async {
     final apiKey = await getApiKey();
     if (apiKey == null || apiKey.isEmpty) {
@@ -112,6 +113,7 @@ class GeminiService {
     }
   }
 
+  // تجربة النماذج المتاحة بالتتابع عند عدم توفر النموذج السابق.
   Future<String> _generateWithFallback(
     String apiKey,
     Map<String, dynamic> body,

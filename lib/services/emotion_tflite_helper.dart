@@ -66,6 +66,7 @@ class EmotionTfliteHelper {
     return _softmax(raw);
   }
 
+  // تجهيز الصورة وقص الوجه وتحويلها إلى شكل دخل النموذج.
   Future<List<dynamic>> preprocessImageFile(File file) async {
     // Read bytes asynchronously to avoid blocking the UI thread.
     final bytes = await file.readAsBytes();
@@ -144,6 +145,7 @@ class EmotionTfliteHelper {
     return input;
   }
 
+  // تشغيل النموذج وتحويل درجاته إلى الشعور الأعلى ثقة.
   EmotionPrediction predictFromInput(List<dynamic> input) {
     final output = List.filled(1 * numClasses, 0.0).reshape([1, numClasses]);
     interpreter.run(input, output);
@@ -166,6 +168,7 @@ class EmotionTfliteHelper {
     );
   }
 
+  // توقع الشعور من الملف، أو إرجاع null عند تعذر تجهيز الصورة.
   Future<EmotionPrediction?> predictFromFile(File file) async {
     final input = await preprocessImageFile(file);
     if (input.isEmpty) return null;
