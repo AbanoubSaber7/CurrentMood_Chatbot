@@ -47,5 +47,7 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>This app uses the camera for live mood detection and face analysis.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app uses the microphone for speech emotion detection.</string>
 </dict>
 </plist>

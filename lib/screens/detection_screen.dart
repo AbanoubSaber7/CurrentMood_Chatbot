@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mood_app/widgets/background_widget.dart';
 import 'package:mood_app/screens/recommendations_screen.dart';
 import 'package:mood_app/screens/live_detection_screen.dart';
+import 'package:mood_app/screens/voice_detection_screen.dart';
 import 'package:mood_app/screens/mood_history_screen.dart';
 import 'package:mood_app/services/emotion_tflite_helper.dart';
 import 'package:mood_app/services/mood_alert_notification_service.dart';
@@ -365,6 +366,15 @@ class _DetectionScreenState extends State<DetectionScreen> {
     );
   }
 
+  void _openVoiceMode() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VoiceDetectionScreen(userName: widget.userName),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentEmotion = predictedEmotion ?? manualSelectedEmotion;
@@ -424,6 +434,11 @@ class _DetectionScreenState extends State<DetectionScreen> {
                   icon: const Icon(Icons.videocam),
                   tooltip: 'Live Camera',
                   onPressed: kIsWeb ? null : _openLiveMode,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.mic),
+                  tooltip: 'Voice Mood',
+                  onPressed: kIsWeb ? null : _openVoiceMode,
                 ),
                 Container(height: 28, width: 1, color: Colors.grey.shade300),
                 IconButton(
