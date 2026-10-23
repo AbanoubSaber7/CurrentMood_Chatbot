@@ -1,0 +1,5 @@
+a = "hello" + "world"
+if a == "hello world"
+    print(444)
+else
+    print(555)
